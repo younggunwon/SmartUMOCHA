@@ -40,24 +40,21 @@ void setup()
 void loop()
 {
   getSpeed();
-  choempa(lTrigPin,lEchoPin, "왼쪽");
-  choempa(rTrigPin,rEchoPin, "오른쪽");
-  //if(timer > 100000) {
-  //getHumidity();
+  choempa(lTrigPin,lEchoPin, "left");
+  choempa(rTrigPin,rEchoPin, "right");
+  if(timer > 100000) {
+  getHumidity();
   timer = 0;
-  //}
-  /*
+  }
   getData();
-  delay(100);
+  delay(1000);
   timer += 100;
-  */
-  delay(100);
+  
 }
 
 void getSpeed() {
   
   boolean check = digitalRead(ridPin);
-  Serial.println(check);
     if(check == 1 && temp == 0) {
       sTime = millis();
       temp = 1;
@@ -107,8 +104,14 @@ void choempa(int trig,int echo, String s){
 
   duration = pulseIn(echo, HIGH); //장애물까지의 시간
   cm = microsecondsToCentimeters(duration);
-  //Serial.print(s);
-  //Serial.println(cm);
+  if(timer > 1000) {
+    timer = 0;
+    mySerial.println(s);
+    delay(10);
+    mySerial.println(cm);
+    delay(10);
+  }
+  
   if(cm < 50) {
     startBreak();
 
@@ -121,10 +124,10 @@ void getHumidity(){
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
  
-  mySerial.write('h');
-  mySerial.write(humidity);
-  mySerial.write('t');
-  mySerial.write(temperature);
+  //mySerial.print("humi");
+  //mySerial.print(humidity);
+  //mySerial.print("temper");
+  //mySerial.print(temperature);
   Serial.println(humidity);
   Serial.println(temperature);
 }
