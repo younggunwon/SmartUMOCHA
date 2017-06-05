@@ -19,7 +19,10 @@ float sTime = 0;
 float eTime = 0;
 boolean temp = 0;
 int count = 0;
-int timer = 0;
+int timerCH = 0;
+int timerTE = 0;
+int timerSP = 0;
+int lrswitch = 0;
 
 
 
@@ -42,13 +45,14 @@ void loop()
   getSpeed();
   choempa(lTrigPin,lEchoPin, "left");
   choempa(rTrigPin,rEchoPin, "right");
-  if(timer > 100000) {
+  if(timerTE > 1000) {
   getHumidity();
-  timer = 0;
+  timerTE = 0;
   }
   getData();
-  delay(1000);
-  timer += 100;
+  timerCH += 100;
+  timerTE += 100;
+  delay(100);
   
 }
 
@@ -70,6 +74,14 @@ void getSpeed() {
       count = 0;
       Serial.println("종료");
       Serial.println(umSpeed);
+      if(timerSP > 1000) {
+        timerSP = 0;
+        mySerial.write('s');
+        delay(60);
+        mySerial.println(umSpeed);
+        delay(60);
+      }
+      
     }
 
     if(check == 1) {
@@ -104,12 +116,28 @@ void choempa(int trig,int echo, String s){
 
   duration = pulseIn(echo, HIGH); //장애물까지의 시간
   cm = microsecondsToCentimeters(duration);
-  if(timer > 1000) {
-    timer = 0;
-    mySerial.println(s);
-    delay(10);
-    mySerial.println(cm);
-    delay(10);
+  if(lrswitch == 0) {
+    if(s.equals("right")) {
+      if(timerCH > 500) {
+      timerCH = 0;
+      mySerial.write('l');
+      delay(60);
+      mySerial.println(cm);
+      delay(60);
+      lrswitch = 1;
+      }
+    }
+  } else {
+    if(s.equals("left")) {
+      if(timerCH > 500) {
+      timerCH = 0;
+      mySerial.write('r');
+      delay(60);
+      mySerial.println(cm);
+      delay(60);
+      lrswitch = 0;
+      }
+    }
   }
   
   if(cm < 50) {
@@ -124,12 +152,14 @@ void getHumidity(){
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
  
-  //mySerial.print("humi");
-  //mySerial.print(humidity);
-  //mySerial.print("temper");
-  //mySerial.print(temperature);
-  Serial.println(humidity);
-  Serial.println(temperature);
+  mySerial.write('h');
+  delay(60);
+  mySerial.println(humidity);
+  delay(60);
+  mySerial.write('t');
+  delay(60);
+  mySerial.println(temperature);
+  delay(60);
 }
 
 void startBreak() {
