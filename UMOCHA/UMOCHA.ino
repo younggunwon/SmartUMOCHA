@@ -6,8 +6,10 @@
 #define piezoPin 9
 #define blueTx 6
 #define blueRx 5
-#define ridPin 7
+#define ridPin A0
 #define radius 6.5
+#define breakOn 4
+#define breakOff 3
 #include <DHT.h>
 #define DHTTYPE DHT11
 DHT dht(8,DHTTYPE);
@@ -36,12 +38,15 @@ void setup()
   pinMode(rEchoPin, INPUT);
   pinMode(piezoPin, OUTPUT);
   pinMode(ridPin, INPUT);
+  pinMode(breakOn, OUTPUT);
+  pinMode(breakOff, OUTPUT);
   Serial.begin (9600);
   mySerial.begin(9600); //블루투스 시리얼
   dht.begin();
 }
 void loop()
 {
+  digitalWrite(3, 1);
   getSpeed();
   choempa(lTrigPin,lEchoPin, "left");
   choempa(rTrigPin,rEchoPin, "right");
@@ -52,6 +57,7 @@ void loop()
   getData();
   timerCH += 100;
   timerTE += 100;
+  timerSP += 100;
   delay(100);
   
 }
@@ -69,13 +75,17 @@ void getSpeed() {
       eTime = millis();
 
       dTime = (eTime - sTime) / 1000;
-      umSpeed = (circle / dTime) * 3.6;
+      umSpeed = (circle / dTime) * 3.6 *1000;
       temp = 0;
       count = 0;
+      if(umSpeed > 10) {
+        startBreak();
+      }
       Serial.println("종료");
       Serial.println(umSpeed);
       if(timerSP > 1000) {
         timerSP = 0;
+        delay(1000);
         mySerial.print("speed");
         delay(60);
         mySerial.println(umSpeed);
@@ -99,11 +109,13 @@ void getData() {
  if(!data.equals("")){
   Serial.println(data);
 
-  if(data == 'breakLock') {  //브레이크 잡기
-      
-    } else if(data == 'breakUnlock') { //브레이크 해제
-      
-    }
+   if(data.equals("breakOn")) {  //브레이크 잡기
+      Serial.println("브레이크잡힘");
+      startBreak();
+   } else if(data.equals("breakOff")) { //브레이크 해제
+    Serial.println("브레이크풀림");
+      endBreak();
+   }
  }
  data = "";
 }
@@ -163,7 +175,15 @@ void getHumidity(){
 }
 
 void startBreak() {
+  digitalWrite(breakOn, 1);
   piezo();
+}
+
+void endBreak() {
+  digitalWrite(breakOn, 0);
+  digitalWrite(breakOff, 1);
+  delay(300);
+  digitalWrite(breakOff, 0);
 }
 
 void piezo(){
