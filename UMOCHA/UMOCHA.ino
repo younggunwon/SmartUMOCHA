@@ -76,7 +76,7 @@ void getSpeed() {
       Serial.println(umSpeed);
       if(timerSP > 1000) {
         timerSP = 0;
-        mySerial.write('s');
+        mySerial.print("speed");
         delay(60);
         mySerial.println(umSpeed);
         delay(60);
@@ -120,7 +120,7 @@ void choempa(int trig,int echo, String s){
     if(s.equals("right")) {
       if(timerCH > 500) {
       timerCH = 0;
-      mySerial.write('l');
+      mySerial.print("left");
       delay(60);
       mySerial.println(cm);
       delay(60);
@@ -131,7 +131,7 @@ void choempa(int trig,int echo, String s){
     if(s.equals("left")) {
       if(timerCH > 500) {
       timerCH = 0;
-      mySerial.write('r');
+      mySerial.print("right");
       delay(60);
       mySerial.println(cm);
       delay(60);
@@ -152,11 +152,11 @@ void getHumidity(){
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
  
-  mySerial.write('h');
+  mySerial.print("humi");
   delay(60);
   mySerial.println(humidity);
   delay(60);
-  mySerial.write('t');
+  mySerial.print("temper");
   delay(60);
   mySerial.println(temperature);
   delay(60);
